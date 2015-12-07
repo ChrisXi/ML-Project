@@ -17,55 +17,48 @@ import org.apache.commons.cli.OptionBuilder;
 public class Classify {
 	static public LinkedList<Option> options = new LinkedList<Option>();
 	
+	//-algorithm nn -data ../ML_Data/test.txt
+	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
-		String[] manditory_args = { "mode"};
+		String[] manditory_args = {"data"};
 		createCommandLineOptions();
 		CommandLineUtilities.initCommandLineParameters(args, Classify.options, manditory_args);
 	
-		String mode = CommandLineUtilities.getOptionValue("mode");
-		String data = CommandLineUtilities.getOptionValue("data");
-		String predictions_file = CommandLineUtilities.getOptionValue("predictions_file");
-		String algorithm = CommandLineUtilities.getOptionValue("algorithm");
-		String model_file = CommandLineUtilities.getOptionValue("model_file");
+//		String mode = CommandLineUtilities.getOptionValue("mode");
+//		String predictions_file = CommandLineUtilities.getOptionValue("predictions_file");
+//		String model_file = CommandLineUtilities.getOptionValue("model_file");
 		
-		if (mode.equalsIgnoreCase("train")) {
-			if (data == null || algorithm == null || model_file == null) {
-				System.out.println("Train requires the following arguments: data, algorithm, model_file");
-				System.exit(0);
-			}
-			// Load the training data.
-			DataReader data_reader = new DataReader(data, true);
-			List<Instance> instances = data_reader.readData();
-			data_reader.close();
-			
-			// Train the model.
-			Predictor predictor = train(instances, algorithm);
-			saveObject(predictor, model_file);		
-			
-		} else if (mode.equalsIgnoreCase("test")) {
-			if (data == null || predictions_file == null || model_file == null) {
-				System.out.println("Train requires the following arguments: data, predictions_file, model_file");
-				System.exit(0);
-			}
-			
-			// Load the test data.
-			DataReader data_reader = new DataReader(data, true);
-			List<Instance> instances = data_reader.readData();
-			data_reader.close();
-			
-			// Load the model.
-			Predictor predictor = (Predictor)loadObject(model_file);
-			evaluateAndSavePredictions(predictor, instances, predictions_file);
-		} else {
-			System.out.println("Requires mode argument.");
+		String data = CommandLineUtilities.getOptionValue("data");
+		String algorithm = CommandLineUtilities.getOptionValue("algorithm");
+		
+		
+	
+		if (data == null || algorithm == null){
+			System.out.println("Train requires the following arguments: data, algorithm, model_file");
+			System.exit(0);
 		}
+		// Load the training data.
+		DataReader data_reader = new DataReader(data, true);
+		List<Instance> instances = data_reader.readData();
+		data_reader.close();
+		System.out.println("Loading data done!");
+		System.out.println("Instance number:" + instances.size());
+		System.out.println("Feature number: " + instances.get(0)._feature_vector.features.size());
+		// Train the model.
+		Predictor predictor = train(instances, algorithm);
+		
+//		evaluateAndSavePredictions(predictor, instances, predictions_file);
+
 	}
 	
 
 	private static Predictor train(List<Instance> instances, String algorithm) {
 		// TODO Train the model using "algorithm" on "data"
 		// TODO Evaluate the model
+		
+		
+		
 		return null;
 	}
 
@@ -74,12 +67,12 @@ public class Classify {
 		PredictionsWriter writer = new PredictionsWriter(predictions_file);
 		// TODO Evaluate the model if labels are available. 
 		
-		for (Instance instance : instances) {
-			Label label = predictor.predict(instance);
-			writer.writePrediction(label);
-		}
-		
-		writer.close();
+//		for (Instance instance : instances) {
+//			Label label = predictor.predict(instance);
+//			writer.writePrediction(label);
+//		}
+//		
+//		writer.close();
 		
 	}
 
@@ -127,10 +120,10 @@ public class Classify {
 	
 	private static void createCommandLineOptions() {
 		registerOption("data", "String", true, "The data to use.");
-		registerOption("mode", "String", true, "Operating mode: train or test.");
-		registerOption("predictions_file", "String", true, "The predictions file to create.");
 		registerOption("algorithm", "String", true, "The name of the algorithm for training.");
-		registerOption("model_file", "String", true, "The name of the model file to create/load.");
+//		registerOption("mode", "String", true, "Operating mode: train or test.");
+//		registerOption("predictions_file", "String", true, "The predictions file to create.");
+//		registerOption("model_file", "String", true, "The name of the model file to create/load.");
 		
 		// Other options will be added here.
 	}
