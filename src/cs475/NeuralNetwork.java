@@ -35,6 +35,13 @@ public class NeuralNetwork extends Predictor{
 			actValues[0] = 1; //bias equals to 1
 			this.totalActValues.add(actValues);
 		}
+		
+		this.totalSumValues = new ArrayList<double[]>();
+		for(int n=1; n<this.neuronNum.length-1; n++) {
+			int neuronNum = this.neuronNum[n]; //neuron Number start from second layer
+			double[] sumValues = new double[neuronNum];
+			this.totalActValues.add(sumValues);
+		}
 	}
 	
 	@Override
@@ -65,17 +72,26 @@ public class NeuralNetwork extends Predictor{
 		}
 		
 		/*feed forward*/
-		for(int l=0; l<neuronNum.length; l++) {
+		for(int l=0; l<neuronNum.length-1; l++) {
 			double weights[][] = this.totalWeights.get(l);
 			double sumValue[] = Matrix.multiply(weights, this.totalActValues.get(l));
 			
 			if (neuronNum[l+1] != sumValue.length) 
 				throw new RuntimeException("Illegal matrix dimensions.");
 			
-//			for(int i=0; i<temp.length; i++) {
-//				sumValue[i]
-//			}
+			for(int i=0; i<sumValue.length; i++) {
+				this.totalSumValues.get(l)[i] = sumValue[i];
+				this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
+			}
 			
 		}
+	}
+	
+	public double sigmo(double z) {
+		return 1/1+Math.exp(-z);
+	}
+	
+	public double sigmoPrime(double z) {
+		return sigmo(z)*(1-sigmo(z));
 	}
 }
