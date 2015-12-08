@@ -2,6 +2,7 @@ package cs475;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import PrincetonMatrix.Matrix;
 
 public class NeuralNetwork extends Predictor{
@@ -13,7 +14,8 @@ public class NeuralNetwork extends Predictor{
 
 	private List<double[][]> totalWeights;
 	int neuronNum[]; //neuron Number In Each Layers
-	List<double[]> totalActValues; //activation in each layers
+	List<double[]> totalActValues; //activation in each layers, the first layer should be image size
+	List<double[]> totalSumValues; //sum in each layers, the first layer doesn't have sum value
 	
 	public NeuralNetwork() {
 		this.totalWeights = new ArrayList<double[][]>();	
@@ -22,7 +24,7 @@ public class NeuralNetwork extends Predictor{
 			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
 //			double weights[][] = new double[preNeuronNum][postNeuronNum]; 
 			
-			double[][] weights = Matrix.random(preNeuronNum, postNeuronNum);
+			double[][] weights = Matrix.random(postNeuronNum, preNeuronNum);
 			this.totalWeights.add(weights);
 		}
 		
@@ -39,6 +41,12 @@ public class NeuralNetwork extends Predictor{
 	public void train(List<Instance> instances) {
 		// TODO Auto-generated method stub
 		
+		for (Instance instance : instances) {
+			
+			feedForward(instance);
+			
+			
+		}
 		
 		
 	}
@@ -49,4 +57,25 @@ public class NeuralNetwork extends Predictor{
 		return null;
 	}
 
+	public void feedForward(Instance instance) {
+		/*first layer of act*/
+		for(int n=0; n<instance._feature_vector.features.size(); n++) {
+			double value = instance._feature_vector.features.get(n);
+			this.totalActValues.get(0)[n+1] = value;  
+		}
+		
+		/*feed forward*/
+		for(int l=0; l<neuronNum.length; l++) {
+			double weights[][] = this.totalWeights.get(l);
+			double sumValue[] = Matrix.multiply(weights, this.totalActValues.get(l));
+			
+			if (neuronNum[l+1] != sumValue.length) 
+				throw new RuntimeException("Illegal matrix dimensions.");
+			
+//			for(int i=0; i<temp.length; i++) {
+//				sumValue[i]
+//			}
+			
+		}
+	}
 }
