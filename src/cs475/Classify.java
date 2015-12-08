@@ -57,7 +57,18 @@ public class Classify {
 		// TODO Train the model using "algorithm" on "data"
 		// TODO Evaluate the model
 		
-		
+		Predictor classifier;
+		if(algorithm.equals("majority")) {
+			classifier = new NeuralNetwork();
+			classifier.train(instances);
+			
+//			evaluateAfterTrain(instances,classifier);
+			return classifier;
+			
+		} else if(algorithm.equals("even_odd")) {
+			
+//			return classifier;
+		} 
 		
 		return null;
 	}
