@@ -16,8 +16,11 @@ public class NeuralNetwork extends Predictor{
 	int neuronNum[]; //neuron Number In Each Layers
 	List<double[]> totalActValues; //activation in each layers, the first layer should be image size
 	List<double[]> totalSumValues; //sum in each layers, the first layer doesn't have sum value
+	double[] labelValue;
 	
 	public NeuralNetwork() {
+		
+		/*weight*/
 		this.totalWeights = new ArrayList<double[][]>();	
 		for(int n=0; n<this.neuronNum.length-1; n++) {
 			int preNeuronNum = neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
@@ -28,6 +31,15 @@ public class NeuralNetwork extends Predictor{
 			this.totalWeights.add(weights);
 		}
 		
+		/*sum*/
+		this.totalSumValues = new ArrayList<double[]>();
+		for(int n=1; n<this.neuronNum.length-1; n++) {
+			int neuronNum = this.neuronNum[n]; //neuron Number start from second layer
+			double[] sumValues = new double[neuronNum];
+			this.totalActValues.add(sumValues);
+		}
+		
+		/*activation*/
 		this.totalActValues = new ArrayList<double[]>();
 		for(int n=0; n<this.neuronNum.length-1; n++) {
 			int neuronNum = this.neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
@@ -36,12 +48,10 @@ public class NeuralNetwork extends Predictor{
 			this.totalActValues.add(actValues);
 		}
 		
-		this.totalSumValues = new ArrayList<double[]>();
-		for(int n=1; n<this.neuronNum.length-1; n++) {
-			int neuronNum = this.neuronNum[n]; //neuron Number start from second layer
-			double[] sumValues = new double[neuronNum];
-			this.totalActValues.add(sumValues);
-		}
+		/*label*/
+		int labelNum = this.neuronNum[this.neuronNum.length-1];
+		this.labelValue = new double[labelNum];
+		
 	}
 	
 	@Override
@@ -50,8 +60,11 @@ public class NeuralNetwork extends Predictor{
 		
 		for (Instance instance : instances) {
 			
+			/*set activation value in first layer & feed forward*/
 			feedForward(instance);
 			
+			/*get label value*/
+			getLabelValue(instance);
 			
 		}
 		
@@ -72,7 +85,7 @@ public class NeuralNetwork extends Predictor{
 		for(int n=0; n<this.neuronNum.length-1; n++) {
 			int preNeuronNum = neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
 			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
-			double gradient[][] = new double[preNeuronNum][postNeuronNum]; 
+			double gradient[][] = new double[postNeuronNum][preNeuronNum]; 
 			gradients.add(gradient);
 		}
 		
@@ -90,21 +103,50 @@ public class NeuralNetwork extends Predictor{
 			s[i] = sigmoPrime(lastSum[i]);
 		}		
 		
+		// the last layer
+		delta =  Matrix.multiply(Matrix.subtract(lastAct, labelValue), s) ;
+		gradients.set(neuronNum.length-2, Matrix.multiplyTwo(delta, totalActValues.get(totalActValues.size()-2)));
 		
-		delta =  Matrix.multiply(Matrix.subtract(lastAct, y), lastSum) ;
-		
-		
-		
-		
-		
-		
-		
+		// the other layers
+		for (int lr=neuronNum.length-3; lr>0 ; lr--) {
+			double[] sum = totalSumValues.get(lr);
+			int numNodesOfLayer = neuronNum[lr+1];
+			s = new double[numNodesOfLayer];
+			for(int i=0; i< numNodesOfLayer; i++) {
+				s[i] = sigmoPrime(sum[i]);
+			}
+			
+			// get the weight without bias
+			double[][] w = getMatrixWithoutBias(totalWeights.get(lr+1));
+			
+			
+			delta = Matrix.multiply( Matrix.multiply( Matrix.transpose(w), delta) , s); 
+			
+			gradients.set(lr, Matrix.multiplyTwo(delta, totalActValues.get(lr - 1)));
+			
+		}
 		
 		return gradients;
+	}
+	
+	public double[][] getMatrixWithoutBias(double[][] w) {
+		double[][] result = new double[w.length][w[0].length - 1];
+		
+		for (int i=0; i<w.length; i++){
+			for(int j=1; j<w[0].length; j++) {
+				result[i][j-1] = w[i][j];
+			}
+		}
+		
+		return result;
+		
 	}
 
 	public void feedForward(Instance instance) {
 		/*first layer of act*/
+		if (neuronNum[0] != instance._feature_vector.features.size()+1) 
+			throw new RuntimeException("Illegal matrix dimensions: number of activations in first layer doesn't match");
+		
 		for(int n=0; n<instance._feature_vector.features.size(); n++) {
 			double value = instance._feature_vector.features.get(n);
 			this.totalActValues.get(0)[n+1] = value;  
@@ -122,8 +164,19 @@ public class NeuralNetwork extends Predictor{
 				this.totalSumValues.get(l)[i] = sumValue[i];
 				this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
 			}
-			
 		}
+	}
+	
+
+	public void getLabelValue(Instance instance) {
+		
+		String label = ((ClassificationLabel)instance._label).toString();
+		int labelIndex = Integer.parseInt(label);
+	
+		for(int n=0; n<this.labelValue.length; n++) {
+			this.labelValue[n] = 0;
+		}
+		this.labelValue[labelIndex] = 1;
 	}
 	
 

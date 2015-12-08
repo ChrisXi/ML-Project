@@ -119,6 +119,16 @@ public class Matrix {
         return result;
     }
     
+    public static double[][] multiplyTwo(double[] x, double[] y){
+    	double[][] result = new double[x.length][y.length];
+    	
+    	for (int i=0; i<x.length; i++){
+    		for (int j=0; j<y.length; j++){
+    			result[i][j] = x[i] * y[j];
+    		}
+    	}
+    	return result;
+    }
 
     // vector-matrix multiplication (y = x^T A)
     public static double[] multiply(double[] x, double[][] A) {
