@@ -73,6 +73,15 @@ public class Matrix {
                 C[i][j] = A[i][j] - B[i][j];
         return C;
     }
+    
+    // return C = A - B
+    public static double[] subtract(double[] A, double[] B) {
+        int m = A.length;
+        double[] C = new double[m];
+        for (int i = 0; i < m; i++)
+        	C[i] = A[i] - B[i];
+        return C;
+    }
 
     // return C = A * B
     public static double[][] multiply(double[][] A, double[][] B) {
@@ -101,6 +110,15 @@ public class Matrix {
         return y;
     }
 
+    // return 
+    public static double[] multiply(double[] x, double[] y) {
+        if (x.length != y.length) throw new RuntimeException("Illegal vector dimensions.");
+        double[] result = new double[x.length];
+        for (int i = 0; i < x.length; i++)
+            result[i] = x[i] * y[i];
+        return result;
+    }
+    
 
     // vector-matrix multiplication (y = x^T A)
     public static double[] multiply(double[] x, double[][] A) {
