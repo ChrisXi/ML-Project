@@ -72,6 +72,9 @@ public class NeuralNetwork extends Predictor{
 		
 		//backward 
 		
+		//1. get target error 
+		
+		
 		
 		
 		
@@ -99,4 +102,5 @@ public class NeuralNetwork extends Predictor{
 			
 		}
 	}
+	
 }
