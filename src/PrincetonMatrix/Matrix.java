@@ -51,6 +51,8 @@ public class Matrix {
                 C[j][i] = A[i][j];
         return C;
     }
+    
+    
 
     // return C = A + B
     public static double[][] add(double[][] A, double[][] B) {
