@@ -48,5 +48,26 @@ public class NeuralNetwork extends Predictor{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+	
+	public List<double[][]> backForward() {
+		
+		List<double[][]> gradients = new ArrayList<double[][]>();
+		for(int n=0; n<this.neuronNum.length-1; n++) {
+			int preNeuronNum = neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
+			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
+			double gradient[][] = new double[preNeuronNum][postNeuronNum]; 
+			gradients.add(gradient);
+		}
+		
+		
+		//backward 
+		
+		
+		
+		
+		return gradients;
+	}
 
 }
