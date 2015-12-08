@@ -117,7 +117,10 @@ public class NeuralNetwork extends Predictor{
 				else
 					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
 			}
+			
 		}
+		int a = 20;
+		int b = a;
 	}
 	
 	public void getLabelValue(Instance instance) {
@@ -132,7 +135,7 @@ public class NeuralNetwork extends Predictor{
 	}
 	
 	public double sigmo(double z) {
-		return 1/1+Math.exp(-z);
+		return 1.0/(1.0+Math.exp(-z));
 	}
 	
 	public double sigmoPrime(double z) {
