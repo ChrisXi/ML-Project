@@ -13,12 +13,18 @@ public class NeuralNetwork extends Predictor{
 	private static final long serialVersionUID = 1L;
 
 	private List<double[][]> totalWeights;
-	int neuronNum[]; //neuron Number In Each Layers
+	int neuronNum[]; //neuron Number In Each Layers: 
 	List<double[]> totalActValues; //activation in each layers, the first layer should be image size
 	List<double[]> totalSumValues; //sum in each layers, the first layer doesn't have sum value
 	double[] labelValue;
 	
 	public NeuralNetwork() {
+		
+		neuronNum = new int[3];
+		neuronNum[0] = 1024;
+		neuronNum[1] = 20;
+		neuronNum[2] = 10;
+		
 		
 		/*weight*/
 		this.totalWeights = new ArrayList<double[][]>();	
@@ -33,19 +39,27 @@ public class NeuralNetwork extends Predictor{
 		
 		/*sum*/
 		this.totalSumValues = new ArrayList<double[]>();
-		for(int n=1; n<this.neuronNum.length-1; n++) {
+		for(int n=1; n<this.neuronNum.length; n++) {
 			int neuronNum = this.neuronNum[n]; //neuron Number start from second layer
 			double[] sumValues = new double[neuronNum];
-			this.totalActValues.add(sumValues);
+			this.totalSumValues.add(sumValues);
 		}
 		
 		/*activation*/
 		this.totalActValues = new ArrayList<double[]>();
-		for(int n=0; n<this.neuronNum.length-1; n++) {
+		for(int n=0; n<this.neuronNum.length; n++) {
 			int neuronNum = this.neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
-			double[] actValues = new double[neuronNum];
-			actValues[0] = 1; //bias equals to 1
-			this.totalActValues.add(actValues);
+			
+			if(n==this.neuronNum.length-1) { //last layer (output layer) don't need bias
+				neuronNum = neuronNum -1;
+				double[] actValues = new double[neuronNum];
+				this.totalActValues.add(actValues);
+		  	} else {
+				double[] actValues = new double[neuronNum];
+				actValues[0] = 1; //bias equals to 1
+				this.totalActValues.add(actValues);
+			}
+			
 		}
 		
 		/*label*/
@@ -66,6 +80,7 @@ public class NeuralNetwork extends Predictor{
 			/*get label value*/
 			getLabelValue(instance);
 			
+			return;
 		}
 		
 		
@@ -79,11 +94,11 @@ public class NeuralNetwork extends Predictor{
 
 	public void feedForward(Instance instance) {
 		/*first layer of act*/
-		if (neuronNum[0] != instance._feature_vector.features.size()+1) 
+		if (neuronNum[0] != instance._feature_vector.features.size()) 
 			throw new RuntimeException("Illegal matrix dimensions: number of activations in first layer doesn't match");
 		
 		for(int n=0; n<instance._feature_vector.features.size(); n++) {
-			double value = instance._feature_vector.features.get(n);
+			double value = instance._feature_vector.features.get(n+1);
 			this.totalActValues.get(0)[n+1] = value;  
 		}
 		
@@ -97,7 +112,10 @@ public class NeuralNetwork extends Predictor{
 			
 			for(int i=0; i<sumValue.length; i++) {
 				this.totalSumValues.get(l)[i] = sumValue[i];
-				this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
+				if(i == sumValue.length-1) //last year not have the bias neuron
+					this.totalActValues.get(l+1)[i] = sigmo(sumValue[i]);
+				else
+					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
 			}
 		}
 	}

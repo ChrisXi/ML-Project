@@ -88,7 +88,7 @@ public class Matrix {
                     C[i][j] += A[i][k] * B[k][j];
         return C;
     }
-
+    
     // matrix-vector multiplication (y = A * x)
     public static double[] multiply(double[][] A, double[] x) {
         int m = A.length;

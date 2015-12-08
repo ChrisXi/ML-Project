@@ -58,16 +58,12 @@ public class Classify {
 		// TODO Evaluate the model
 		
 		Predictor classifier;
-		if(algorithm.equals("majority")) {
+		if(algorithm.equals("nn")) { //neural network
 			classifier = new NeuralNetwork();
 			classifier.train(instances);
-			
 //			evaluateAfterTrain(instances,classifier);
-			return classifier;
+		} else if(algorithm.equals("cnn")) { // convolutional neural network
 			
-		} else if(algorithm.equals("even_odd")) {
-			
-//			return classifier;
 		} 
 		
 		return null;
