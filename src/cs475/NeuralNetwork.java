@@ -126,7 +126,7 @@ public class NeuralNetwork extends Predictor{
 		gradients.set(neuronNum.length-2, Matrix.multiplyTwo(delta, totalActValues.get(totalActValues.size()-2)));
 		
 		// the other layers
-		for (int lr=neuronNum.length-3; lr>0 ; lr--) {
+		for (int lr=neuronNum.length-3; lr>=0 ; lr--) {
 			double[] sum = totalSumValues.get(lr);
 			int numNodesOfLayer = neuronNum[lr+1];
 			s = new double[numNodesOfLayer];
@@ -138,10 +138,11 @@ public class NeuralNetwork extends Predictor{
 			double[][] w = getMatrixWithoutBias(totalWeights.get(lr+1));
 			
 			
-			delta = Matrix.multiply( Matrix.multiply( Matrix.transpose(w), delta) , s); 
-			gradients.set(lr, Matrix.multiplyTwo(delta, totalActValues.get(lr - 1)));
+			delta = Matrix.multiply(Matrix.multiply( Matrix.transpose(w), delta) , s); 
+			gradients.set(lr, Matrix.multiplyTwo(delta, totalActValues.get(lr)));
 			
-//			StdArrayIO.print(gradients.get(lr));
+			System.out.println("shape " + gradients.get(lr).length + " " +  gradients.get(lr)[0].length);
+//			System.out.println("shape " + totalActValues.get(lr ).length + " " +totalActValues.get(lr)[0] );
 			
 		}
 		
@@ -181,12 +182,15 @@ public class NeuralNetwork extends Predictor{
 			
 			for(int i=0; i<sumValue.length; i++) {
 				this.totalSumValues.get(l)[i] = sumValue[i];
-				if(i == sumValue.length-1) //last year not have the bias neuron
+				if(l == neuronNum.length-2) //last year not have the bias neuron
 					this.totalActValues.get(l+1)[i] = sigmo(sumValue[i]);
 				else
 					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
 			}
+			
 		}
+		int a = 20;
+		int b = a;
 	}
 	
 
