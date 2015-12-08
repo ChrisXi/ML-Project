@@ -112,7 +112,7 @@ public class NeuralNetwork extends Predictor{
 			
 			for(int i=0; i<sumValue.length; i++) {
 				this.totalSumValues.get(l)[i] = sumValue[i];
-				if(i == sumValue.length-1) //last year not have the bias neuron
+				if(l == neuronNum.length-2) //last layer does not have the bias neuron
 					this.totalActValues.get(l+1)[i] = sigmo(sumValue[i]);
 				else
 					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
