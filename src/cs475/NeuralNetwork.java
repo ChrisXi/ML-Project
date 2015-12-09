@@ -74,7 +74,7 @@ public class NeuralNetwork extends Predictor{
 	@Override
 	public void train(List<Instance> instances, List<Instance> instances_test) {
 		// TODO Auto-generated method stub
-		sgd(instances, instances_test, 10000, 10, 3.0 );
+		sgd(instances, instances_test, 10000, 5, 3.0 );
 	}
 
 	@Override
@@ -106,18 +106,21 @@ public class NeuralNetwork extends Predictor{
 				else
 					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
 			}
-		
-			double[] x = totalActValues.get(totalActValues.size()-1);
 			
-			double largest = Double.MIN_VALUE;
+		}
 		
-			for(int i =0;i<x.length;i++) {
-				if(x[i] > largest) {
-					largest = x[i];
-					ry = i;
-				}
+		double[] x = totalActValues.get(totalActValues.size()-1);
+		
+		double largest = Double.MIN_VALUE;
+	
+		for(int i =0;i<x.length;i++) {
+			if(x[i] > largest) {
+				largest = x[i];
+				ry = i;
 			}
 		}
+		
+		System.out.println("real:"+label+" predict:"+ry);
 		
 		return ry==label ? 1:0;
 	}
