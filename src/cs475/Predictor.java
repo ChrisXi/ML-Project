@@ -8,5 +8,7 @@ public abstract class Predictor implements Serializable {
 
 	public abstract void train(List<Instance> instances);
 	
+	public abstract void test(List<Instance> instances);
+	
 	public abstract Label predict(Instance instance);
 }

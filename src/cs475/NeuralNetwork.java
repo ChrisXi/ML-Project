@@ -75,24 +75,18 @@ public class NeuralNetwork extends Predictor{
 	@Override
 	public void train(List<Instance> instances) {
 		// TODO Auto-generated method stub
-		
-		for (Instance instance : instances) {
-			
-			/*set activation value in first layer & feed forward*/
-			feedForward(instance);
-			
-			/*get label value*/
-			getLabelValue(instance);
-			
-			backForward();
-			return;
-		}
+		sgd(instances,10, 10, 3.0 );
 	}
 
 	@Override
 	public Label predict(Instance instance) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public void test(List<Instance> instances) {
+		
 	}
 	
 	public void sgd(List<Instance> trainData, int iterations, int batchSize, double learningRate ) {
@@ -197,8 +191,6 @@ public class NeuralNetwork extends Predictor{
 			System.out.println("shape " + gradients.get(lr).length + " " +  gradients.get(lr)[0].length);
 //			System.out.println("shape " + totalActValues.get(lr ).length + " " +totalActValues.get(lr)[0] );
 		}
-		int b=10;
-		int a=b;
 		return gradients;
 	}
 	
@@ -213,6 +205,32 @@ public class NeuralNetwork extends Predictor{
 		return result;
 	}
 
+	public void init() { // init sum/act to zero
+		
+		this.totalSumValues = new ArrayList<double[]>();
+		for(int n=1; n<this.neuronNum.length; n++) {
+			int neuronNum = this.neuronNum[n]; //neuron Number start from second layer
+			double[] sumValues = new double[neuronNum];
+			this.totalActValues.set(n, sumValues);
+		}
+		
+		this.totalActValues = new ArrayList<double[]>();
+		for(int n=0; n<this.neuronNum.length; n++) {
+			int neuronNum = this.neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
+			
+			if(n==this.neuronNum.length-1) { //last layer (output layer) don't need bias
+				neuronNum = neuronNum -1;
+				double[] actValues = new double[neuronNum];
+				this.totalActValues.set(n, actValues);
+			
+		  	} else {
+				double[] actValues = new double[neuronNum];
+				actValues[0] = 1; //bias equals to 1
+				this.totalActValues.set(n, actValues);
+			}	
+		}
+	}
+	
 	public void feedForward(Instance instance) {
 		/*first layer of act*/
 		if (neuronNum[0] != instance._feature_vector.features.size()) 
