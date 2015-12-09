@@ -72,18 +72,7 @@ public class NeuralNetwork extends Predictor{
 	@Override
 	public void train(List<Instance> instances) {
 		// TODO Auto-generated method stub
-		
-		for (Instance instance : instances) {
-			
-			/*set activation value in first layer & feed forward*/
-			feedForward(instance);
-			
-			/*get label value*/
-			getLabelValue(instance);
-			
-			backForward();
-			return;
-		}
+		sgd(instances, 10, 10, 3);
 	}
 
 	@Override
