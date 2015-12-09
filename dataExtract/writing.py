@@ -1,4 +1,4 @@
-import network
+
 import numpy as np
 
 def vectorized_result(j):
@@ -51,7 +51,7 @@ t = unpickle("test_batch")
 
 dataR = []
 for item in a.get('data'):
-    dataR.append(vectorized_data(item[0:1024]))
+    dataR.append(vectorized_data(item[0:]))
 
 label = []
 for item in a.get('labels'):
@@ -60,7 +60,7 @@ for item in a.get('labels'):
 
 dataRt = []
 for item in t.get('data'):
-    dataRt.append(vectorized_data(item[0:1024]))    
+    dataRt.append(vectorized_data(item[0:]))    
 
 # labelt = []
 # for item in t.get('labels'):
@@ -72,12 +72,12 @@ for item in t.get('data'):
 training_data = [(x, y) for x,y in zip(dataR,  a.get("labels"))]
 
 test_data = [(x, y) for x,y in zip(dataRt,  t.get("labels"))]
-f = open("subtest.txt","w")
+f = open("train_grey.txt","w")
 
-subtrain_data = training_data[0:500]
-subtest_data = test_data[0:500]
+# subtrain_data = training_data[0:500]
+# subtest_data = test_data[0:500]
 
-for item in subtest_data:
+for item in training_data:
     f.write(str(item[1]))
     for i in range(len(item[0])):
        f.write(" "+str(i+1)+":"+str(item[0][i][0]))
