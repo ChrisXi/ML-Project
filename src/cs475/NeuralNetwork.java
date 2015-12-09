@@ -20,6 +20,7 @@ public class NeuralNetwork extends Predictor{
 	List<double[]> totalSumValues; //sum in each layers, the first layer doesn't have sum value
 	double[] labelValue;
 	
+	
 	public NeuralNetwork() {
 		
 		neuronNum = new int[4];
@@ -66,7 +67,6 @@ public class NeuralNetwork extends Predictor{
 		/*label*/
 		int labelNum = this.neuronNum[this.neuronNum.length-1];
 		this.labelValue = new double[labelNum];
-		
 	}
 	
 	@Override
@@ -79,6 +79,47 @@ public class NeuralNetwork extends Predictor{
 	public Label predict(Instance instance) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public int evaluate(Instance testData) {
+		int ry = 0;
+		int y = 0;
+		
+		for(int n=0; n<testData._feature_vector.features.size(); n++) {
+			double value = testData._feature_vector.features.get(n+1);
+			this.totalActValues.get(0)[n+1] = value;  
+		}
+		
+		/*feed forward*/
+		for(int l=0; l<neuronNum.length-1; l++) {
+			double weights[][] = this.totalWeights.get(l);
+			double sumValue[] = Matrix.multiply(weights, this.totalActValues.get(l));
+			
+			if (neuronNum[l+1] != sumValue.length) 
+				throw new RuntimeException("Illegal matrix dimensions.");
+			
+			for(int i=0; i<sumValue.length; i++) {
+				this.totalSumValues.get(l)[i] = sumValue[i];
+				if(l == neuronNum.length-2) //last year not have the bias neuron
+					this.totalActValues.get(l+1)[i] = sigmo(sumValue[i]);
+				else
+					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
+			}
+		
+			double[] x = totalActValues.get(totalActValues.size()-1);
+			
+			double largest = Double.MIN_VALUE;
+		
+			for(int i =0;i<x.length;i++) {
+				if(x[i] > largest) {
+					largest = x[i];
+					ry = i;
+				}
+			}
+		}
+		
+		return 0;
+		
 	}
 	
 	public void sgd(List<Instance> trainData, int iterations, int batchSize, double learningRate ) {
@@ -223,8 +264,7 @@ public class NeuralNetwork extends Predictor{
 					this.totalActValues.get(l+1)[i] = sigmo(sumValue[i]);
 				else
 					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
-			}
-			
+			}	
 		}
 		int a = 20;
 		int b = a;
