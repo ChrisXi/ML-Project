@@ -11,12 +11,32 @@ def vectorized_result(j):
     return e
 
 def vectorized_data(arr):
-	e = np.zeros((1024, 1))
-	count = 0
-	for item in arr:
-		e[count][0] = item
-		count = count + 1
-	return e/255
+	# e = np.zeros((1024, 1))
+	# count = 0
+	# for item in arr:
+	# 	e[count][0] = item
+	# 	count = count + 1
+	# return e/255
+
+	e = np.zeros((1024, 1))  
+
+    r = np.zeros((1024, 1))  
+    g = np.zeros((1024, 1))
+    b = np.zeros((1024, 1))  
+
+    count = 0
+    for item in arr:
+        if count <= 1023:
+            r[count][0] = item
+        elif count <= 2047 and count > 1023:
+            g[count-1024][0] = item
+        else:
+            b[count-1024*2][0] = item
+        count = count + 1
+
+    e = 0.299*r + 0.587*g + 0.114*b
+    
+    return e/255.0
 
 def unpickle(file):
     import cPickle

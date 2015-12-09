@@ -36,8 +36,8 @@ public class NeuralNetwork extends Predictor{
 //			double weights[][] = new double[preNeuronNum][postNeuronNum]; 
 			
 			
-//			double[][] weights = Matrix.random(postNeuronNum, preNeuronNum);
-			double[][] weights = Matrix.ones(postNeuronNum, preNeuronNum);
+			double[][] weights = Matrix.random(postNeuronNum, preNeuronNum);
+//			double[][] weights = Matrix.ones(postNeuronNum, preNeuronNum);
 			
 			this.totalWeights.add(weights);
 		}
@@ -74,7 +74,7 @@ public class NeuralNetwork extends Predictor{
 	@Override
 	public void train(List<Instance> instances, List<Instance> instances_test) {
 		// TODO Auto-generated method stub
-		sgd(instances, instances_test, 10, 10, 3.0 );
+		sgd(instances, instances_test, 10000, 10, 3.0 );
 	}
 
 	@Override
@@ -85,7 +85,6 @@ public class NeuralNetwork extends Predictor{
 
 	public int evaluate(Instance testData, int label) {
 		int ry = 0;
-		int y = label;
 		
 		for(int n=0; n<testData._feature_vector.features.size(); n++) {
 			double value = testData._feature_vector.features.get(n+1);
@@ -120,7 +119,7 @@ public class NeuralNetwork extends Predictor{
 			}
 		}
 		
-		return ry==y ? 1:0;
+		return ry==label ? 1:0;
 	}
 
 	@Override
@@ -150,12 +149,13 @@ public class NeuralNetwork extends Predictor{
 			Collections.shuffle(trainData, new Random(seed));
 //			System.out.println("shuffle");
 			for (int k=0; k<trainData.size(); k+=batchSize){
-				System.out.println("mini batch No:"+k);
+//				System.out.println("mini batch No:"+k);
 				List<Instance> batchTrainData = trainData.subList(k, k+batchSize);
 				updateWeights(batchTrainData, learningRate);
 			}
 			
-			System.out.println("beigin testing...");
+//			System.out.println("begin testing...");
+			System.out.println("iter: "+iter);
 			test(instances_test);
 		}
 	}

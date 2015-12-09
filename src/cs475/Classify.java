@@ -17,8 +17,7 @@ import org.apache.commons.cli.OptionBuilder;
 public class Classify {
 	static public LinkedList<Option> options = new LinkedList<Option>();
 	
-	//-algorithm nn -data ../ML_Data/test.txt 
-	//-algorithm nn -data ../ML_Data/train.txt -test ../ML_Data/test.txt
+//	-algorithm nn -data ../ML_Data/train.txt -test ../ML_Data/test.txt
 	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
