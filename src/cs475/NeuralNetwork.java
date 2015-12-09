@@ -18,7 +18,9 @@ public class NeuralNetwork extends Predictor{
 	int neuronNum[]; //neuron Number In Each Layers: 
 	List<double[]> totalActValues; //activation in each layers, the first layer should be image size
 	List<double[]> totalSumValues; //sum in each layers, the first layer doesn't have sum value
+//	List<double[][]> gradients;
 	double[] labelValue;
+	long lastTime;
 	
 	public NeuralNetwork() {
 		
@@ -69,12 +71,20 @@ public class NeuralNetwork extends Predictor{
 		/*label*/
 		int labelNum = this.neuronNum[this.neuronNum.length-1];
 		this.labelValue = new double[labelNum];
+		
+//		this.gradients = new ArrayList<double[][]>();
+//		for(int n=0; n<this.neuronNum.length-1; n++) {
+//			int preNeuronNum = neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
+//			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
+//			double gradient[][] = new double[postNeuronNum][preNeuronNum]; 
+//			gradients.add(gradient);
+//		}
 	}
 	
 	@Override
 	public void train(List<Instance> instances, List<Instance> instances_test) {
 		// TODO Auto-generated method stub
-		sgd(instances, instances_test, 10000, 5, 3.0 );
+		sgd(instances, instances_test, 10000, 10, 3.0 );
 	}
 
 	@Override
@@ -120,7 +130,7 @@ public class NeuralNetwork extends Predictor{
 			}
 		}
 		
-		System.out.println("real:"+label+" predict:"+ry);
+//		System.out.println("real:"+label+" predict:"+ry);
 		
 		return ry==label ? 1:0;
 	}
@@ -152,9 +162,12 @@ public class NeuralNetwork extends Predictor{
 			Collections.shuffle(trainData, new Random(seed));
 //			System.out.println("shuffle");
 			for (int k=0; k<trainData.size(); k+=batchSize){
-//				System.out.println("mini batch No:"+k);
+				
+
 				List<Instance> batchTrainData = trainData.subList(k, k+batchSize);
 				updateWeights(batchTrainData, learningRate);
+				
+				
 			}
 			
 //			System.out.println("begin testing...");
@@ -176,13 +189,21 @@ public class NeuralNetwork extends Predictor{
 		for (Instance ins: batchTrainData) {
 			/*set activation value in first layer & feed forward*/
 //			System.out.println("feedForward");
-			feedForward(ins);
 			
+			
+//			System.out.print("mini batch No:"+k+" ");
+			
+			feedForward(ins);
+//			if(System.currentTimeMillis()-this.lastTime > 5)
+//				System.out.println("feedforward time:"+ (System.currentTimeMillis()-this.lastTime)+"ms");
+				
 			/*get label value*/
 			getLabelValue(ins);
 			
 //			System.out.println("gradient");
 			List<double[][]> miniGradients = backForward();
+//			if(System.currentTimeMillis()-this.lastTime > 5)
+//				System.out.println("backforward time:"+ (System.currentTimeMillis()-this.lastTime)+"ms");
 			
 			int layerNum = miniGradients.size();
 			
@@ -196,6 +217,10 @@ public class NeuralNetwork extends Predictor{
 					}
 				}
 			}
+//			this.lastTime = System.currentTimeMillis();
+//			System.gc();
+//			if(System.currentTimeMillis()-this.lastTime > 5)
+//				System.out.println("gc time:"+ (System.currentTimeMillis()-this.lastTime)+"ms");
 		}	
 		
 		int layerNum = gradients.size();
@@ -215,13 +240,30 @@ public class NeuralNetwork extends Predictor{
 
 	public List<double[][]> backForward() {
 		
+		this.lastTime = System.currentTimeMillis();
+		
+		
 		List<double[][]> gradients = new ArrayList<double[][]>();
 		for(int n=0; n<this.neuronNum.length-1; n++) {
 			int preNeuronNum = neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
 			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
 			double gradient[][] = new double[postNeuronNum][preNeuronNum]; 
+			
 			gradients.add(gradient);
+		}/**/
+		/*
+		for(int n=0; n<this.neuronNum.length-1; n++) {
+			int preNeuronNum = neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
+			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
+			double gradient[][] = new double[postNeuronNum][preNeuronNum]; 
+			gradients.set(n, gradient);
+		}*/
+		
+		if(System.currentTimeMillis()-this.lastTime > 5) {
+			System.out.println("assign value:"+ (System.currentTimeMillis()-this.lastTime)+"ms");
+//			System.out.println("last value:"+ this.lastTime+"ms");
 		}
+		this.lastTime = System.currentTimeMillis();
 		
 		//backward 
 		
@@ -242,21 +284,41 @@ public class NeuralNetwork extends Predictor{
 		
 		gradients.set(neuronNum.length-2, Matrix.multiplyTwo(delta, totalActValues.get(totalActValues.size()-2)));
 		
+		if(System.currentTimeMillis()-this.lastTime > 5) {
+			System.out.println("last layer:"+ (System.currentTimeMillis()-this.lastTime)+"ms");
+//			System.out.println("last value:"+ this.lastTime+"ms");
+		}
+		
+		
 		// the other layers
 		for (int lr=neuronNum.length-3; lr>=0 ; lr--) {
+			this.lastTime = System.currentTimeMillis();
+			
 			double[] sum = totalSumValues.get(lr);
 			int numNodesOfLayer = neuronNum[lr+1];
 			s = new double[numNodesOfLayer];
 			for(int i=0; i< numNodesOfLayer; i++) {
 				s[i] = sigmoPrime(sum[i]);
 			}
+			if(System.currentTimeMillis()-this.lastTime > 5) {
+				System.out.println("hidden layer"+lr+"(sigmo)"+":"+ (System.currentTimeMillis()-this.lastTime)+"ms");
+			}
 			
 			// get the weight without bias
 			double[][] w = getMatrixWithoutBias(totalWeights.get(lr+1));
 			
-			
+			this.lastTime = System.currentTimeMillis();
 			delta = Matrix.multiply(Matrix.multiply( Matrix.transpose(w), delta) , s); 
+			if(System.currentTimeMillis()-this.lastTime > 5) {
+				System.out.println("hidden layer"+lr+"(delta)"+":"+ (System.currentTimeMillis()-this.lastTime)+"ms");
+			}
+			
+			this.lastTime = System.currentTimeMillis();
+
 			gradients.set(lr, Matrix.multiplyTwo(delta, totalActValues.get(lr)));
+			if(System.currentTimeMillis()-this.lastTime > 100) {
+				System.out.println("hidden layer"+lr+"(gradients)"+":"+ (System.currentTimeMillis()-this.lastTime)+"ms");
+			}
 			
 //			System.out.println("shape " + gradients.get(lr).length + " " +  gradients.get(lr)[0].length);
 //			System.out.println("shape " + totalActValues.get(lr ).length + " " +totalActValues.get(lr)[0] );
