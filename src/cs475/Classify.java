@@ -34,7 +34,6 @@ public class Classify {
 		String test = CommandLineUtilities.getOptionValue("test");
 		String algorithm = CommandLineUtilities.getOptionValue("algorithm");
 		
-		
 	
 		if (data == null || algorithm == null){
 			System.out.println("Train requires the following arguments: data, algorithm, model_file");
@@ -43,11 +42,18 @@ public class Classify {
 		// Load the training data.
 		DataReader data_reader = new DataReader(data, true);
 		List<Instance> instances = data_reader.readData();
-		List<Instance> instances_test = data_reader.readData();
+		
+		DataReader data_test_reader = new DataReader(test, true);
+		List<Instance> instances_test = data_test_reader.readData();
+		
 		data_reader.close();
+		data_test_reader.close();
+		
 		System.out.println("Loading data done!");
-		System.out.println("Instance number:" + instances.size());
-		System.out.println("Feature number: " + instances.get(0)._feature_vector.features.size());
+		System.out.println("Train Instance number:" + instances.size());
+		System.out.println("Train Feature number: " + instances.get(0)._feature_vector.features.size());
+		System.out.println("Test Instance number:" + instances_test.size());
+		System.out.println("Test Feature number: " + instances_test.get(0)._feature_vector.features.size());
 		// Train the model.
 		Predictor predictor = train(instances, instances_test, algorithm);
 		
@@ -63,8 +69,8 @@ public class Classify {
 		Predictor classifier;
 		if(algorithm.equals("nn")) { //neural network
 			classifier = new NeuralNetwork();
-			classifier.train(instances);
-			classifier.test(instances_test);
+			classifier.train(instances, instances_test);
+//			classifier.test(instances_test);
 //			evaluateAfterTrain(instances,classifier);
 		} else if(algorithm.equals("cnn")) { // convolutional neural network
 			

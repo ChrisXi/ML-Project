@@ -20,7 +20,6 @@ public class NeuralNetwork extends Predictor{
 	List<double[]> totalSumValues; //sum in each layers, the first layer doesn't have sum value
 	double[] labelValue;
 	
-	
 	public NeuralNetwork() {
 		
 		neuronNum = new int[4];
@@ -73,9 +72,9 @@ public class NeuralNetwork extends Predictor{
 	}
 	
 	@Override
-	public void train(List<Instance> instances) {
+	public void train(List<Instance> instances, List<Instance> instances_test) {
 		// TODO Auto-generated method stub
-		sgd(instances,10, 10, 3.0 );
+		sgd(instances, instances_test, 10, 10, 3.0 );
 	}
 
 	@Override
@@ -83,12 +82,10 @@ public class NeuralNetwork extends Predictor{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 
-
-	public int evaluate(Instance testData) {
+	public int evaluate(Instance testData, int label) {
 		int ry = 0;
-		int y = 0;
+		int y = label;
 		
 		for(int n=0; n<testData._feature_vector.features.size(); n++) {
 			double value = testData._feature_vector.features.get(n+1);
@@ -123,24 +120,43 @@ public class NeuralNetwork extends Predictor{
 			}
 		}
 		
-		return 0;
-
+		return ry==y ? 1:0;
 	}
 
 	@Override
 	public void test(List<Instance> instances) {
 		
+		int count = 0;
+		int correct = 0;
+
+		for (Instance instance: instances) {
+			
+			String label = ((ClassificationLabel)instance._label).toString();
+			int labelIndex = Integer.parseInt(label);
+			
+			count ++;
+			
+			if(evaluate(instance, labelIndex) == 1) {
+				correct ++;
+			}
+		}
+		
+		System.out.println("count: "+count+" correct: "+ correct);
 	}
 	
-	public void sgd(List<Instance> trainData, int iterations, int batchSize, double learningRate ) {
+	public void sgd(List<Instance> trainData, List<Instance> instances_test, int iterations, int batchSize, double learningRate ) {
 		for (int iter=0; iter<iterations; iter++){
 			long seed = System.nanoTime();
 			Collections.shuffle(trainData, new Random(seed));
-			
+//			System.out.println("shuffle");
 			for (int k=0; k<trainData.size(); k+=batchSize){
+				System.out.println("mini batch No:"+k);
 				List<Instance> batchTrainData = trainData.subList(k, k+batchSize);
 				updateWeights(batchTrainData, learningRate);
 			}
+			
+			System.out.println("beigin testing...");
+			test(instances_test);
 		}
 	}
 	
@@ -153,13 +169,16 @@ public class NeuralNetwork extends Predictor{
 			gradients.add(gradient);
 		}
 		
+		
 		for (Instance ins: batchTrainData) {
 			/*set activation value in first layer & feed forward*/
+//			System.out.println("feedForward");
 			feedForward(ins);
 			
 			/*get label value*/
 			getLabelValue(ins);
 			
+//			System.out.println("gradient");
 			List<double[][]> miniGradients = backForward();
 			
 			int layerNum = miniGradients.size();
@@ -177,7 +196,7 @@ public class NeuralNetwork extends Predictor{
 		}	
 		
 		int layerNum = gradients.size();
-		
+	
 		double temp = learningRate / batchTrainData.size();
 		for (int b=0; b<layerNum; b++) {
 			int iMax = gradients.get(b).length;
@@ -309,7 +328,6 @@ public class NeuralNetwork extends Predictor{
 
 		}
 	}
-	
 
 	public void getLabelValue(Instance instance) {
 		
