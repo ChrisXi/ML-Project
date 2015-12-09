@@ -87,6 +87,10 @@ public class NeuralNetwork extends Predictor{
 	@Override
 	public void test(List<Instance> instances) {
 		
+		for (Instance instance: instances) {
+			String label = ((ClassificationLabel)instance._label).toString();
+			int labelIndex = Integer.parseInt(label);
+		}
 	}
 	
 	public void sgd(List<Instance> trainData, int iterations, int batchSize, double learningRate ) {
