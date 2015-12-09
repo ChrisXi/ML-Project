@@ -25,8 +25,8 @@ public class NeuralNetwork extends Predictor{
 		
 		neuronNum = new int[4];
 		neuronNum[0] = 1024;
-		neuronNum[1] = 18;
-		neuronNum[2] = 12;
+		neuronNum[1] = 32;
+		neuronNum[2] = 16;
 		neuronNum[3] = 10;
 		
 		/*weight*/
@@ -36,7 +36,10 @@ public class NeuralNetwork extends Predictor{
 			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
 //			double weights[][] = new double[preNeuronNum][postNeuronNum]; 
 			
-			double[][] weights = Matrix.random(postNeuronNum, preNeuronNum);
+			
+//			double[][] weights = Matrix.random(postNeuronNum, preNeuronNum);
+			double[][] weights = Matrix.ones(postNeuronNum, preNeuronNum);
+			
 			this.totalWeights.add(weights);
 		}
 		
@@ -72,7 +75,7 @@ public class NeuralNetwork extends Predictor{
 	@Override
 	public void train(List<Instance> instances) {
 		// TODO Auto-generated method stub
-		sgd(instances, 10, 10, 3);
+		sgd(instances,10, 10, 3.0 );
 	}
 
 	@Override
@@ -81,6 +84,8 @@ public class NeuralNetwork extends Predictor{
 		return null;
 	}
 	
+
+
 	public int evaluate(Instance testData) {
 		int ry = 0;
 		int y = 0;
@@ -119,6 +124,11 @@ public class NeuralNetwork extends Predictor{
 		}
 		
 		return 0;
+
+	}
+
+	@Override
+	public void test(List<Instance> instances) {
 		
 	}
 	
@@ -153,26 +163,31 @@ public class NeuralNetwork extends Predictor{
 			List<double[][]> miniGradients = backForward();
 			
 			int layerNum = miniGradients.size();
-			int iMax = miniGradients.get(0).length;
-			int jMax = miniGradients.get(0)[0].length;
+			
 			
 			for (int b=0; b<layerNum; b++) {
+				int iMax = miniGradients.get(b).length;
+				int jMax = miniGradients.get(b)[0].length;
 				for(int i=0; i<iMax; i++){
 					for (int j=0; j<jMax; j++){
 						gradients.get(b)[i][j] += miniGradients.get(b)[i][j];
 					}
 				}
 			}
-			
-			double temp = learningRate / batchTrainData.size();
-			for (int b=0; b<layerNum; b++) {
-				for(int i=0; i<iMax; i++){
-					for (int j=0; j<jMax; j++){
-						totalWeights.get(b)[i][j] = totalWeights.get(b)[i][j] - temp*gradients.get(b)[i][j];
-					}
-				}
-			}	
 		}	
+		
+		int layerNum = gradients.size();
+		
+		double temp = learningRate / batchTrainData.size();
+		for (int b=0; b<layerNum; b++) {
+			int iMax = gradients.get(b).length;
+			int jMax = gradients.get(b)[0].length;
+			for(int i=0; i<iMax; i++){
+				for (int j=0; j<jMax; j++){
+					totalWeights.get(b)[i][j] = totalWeights.get(b)[i][j] - temp*gradients.get(b)[i][j];
+				}
+			}
+		}
 	}
 	
 
@@ -193,7 +208,7 @@ public class NeuralNetwork extends Predictor{
 		double [] delta = new double [numLastLayer];
 		
 		double[] lastAct = totalActValues.get(totalActValues.size() -1);
-		StdArrayIO.print(lastAct);
+//		StdArrayIO.print(lastAct);
 		double[] s = new double[numLastLayer]; // s is the last vector calculated by the sigmoid prime
 		double[] lastSum = totalSumValues.get(totalSumValues.size() - 1);
 		for (int i=0; i<numLastLayer; i++){
@@ -221,11 +236,9 @@ public class NeuralNetwork extends Predictor{
 			delta = Matrix.multiply(Matrix.multiply( Matrix.transpose(w), delta) , s); 
 			gradients.set(lr, Matrix.multiplyTwo(delta, totalActValues.get(lr)));
 			
-			System.out.println("shape " + gradients.get(lr).length + " " +  gradients.get(lr)[0].length);
+//			System.out.println("shape " + gradients.get(lr).length + " " +  gradients.get(lr)[0].length);
 //			System.out.println("shape " + totalActValues.get(lr ).length + " " +totalActValues.get(lr)[0] );
-			
 		}
-		
 		return gradients;
 	}
 	
@@ -240,6 +253,32 @@ public class NeuralNetwork extends Predictor{
 		return result;
 	}
 
+	public void init() { // init sum/act to zero
+		
+		this.totalSumValues = new ArrayList<double[]>();
+		for(int n=1; n<this.neuronNum.length; n++) {
+			int neuronNum = this.neuronNum[n]; //neuron Number start from second layer
+			double[] sumValues = new double[neuronNum];
+			this.totalActValues.set(n, sumValues);
+		}
+		
+		this.totalActValues = new ArrayList<double[]>();
+		for(int n=0; n<this.neuronNum.length; n++) {
+			int neuronNum = this.neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
+			
+			if(n==this.neuronNum.length-1) { //last layer (output layer) don't need bias
+				neuronNum = neuronNum -1;
+				double[] actValues = new double[neuronNum];
+				this.totalActValues.set(n, actValues);
+			
+		  	} else {
+				double[] actValues = new double[neuronNum];
+				actValues[0] = 1; //bias equals to 1
+				this.totalActValues.set(n, actValues);
+			}	
+		}
+	}
+	
 	public void feedForward(Instance instance) {
 		/*first layer of act*/
 		if (neuronNum[0] != instance._feature_vector.features.size()) 
@@ -249,6 +288,7 @@ public class NeuralNetwork extends Predictor{
 			double value = instance._feature_vector.features.get(n+1);
 			this.totalActValues.get(0)[n+1] = value;  
 		}
+		
 		
 		/*feed forward*/
 		for(int l=0; l<neuronNum.length-1; l++) {
@@ -260,14 +300,14 @@ public class NeuralNetwork extends Predictor{
 			
 			for(int i=0; i<sumValue.length; i++) {
 				this.totalSumValues.get(l)[i] = sumValue[i];
-				if(l == neuronNum.length-2) //last year not have the bias neuron
+				if(l == neuronNum.length-2) //last layer does not have the bias neuron
 					this.totalActValues.get(l+1)[i] = sigmo(sumValue[i]);
 				else
 					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
+
 			}	
+
 		}
-		int a = 20;
-		int b = a;
 	}
 	
 

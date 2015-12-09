@@ -23,6 +23,16 @@ public class Matrix {
                 C[i][j] = rand.nextGaussian();
         return C;
     }
+    
+    // return a m-by-n matrix with values 1
+    public static double[][] ones(int m, int n) {
+        double[][] C = new double[m][n];
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                C[i][j] = 1;
+        return C;
+    }
+
 
     // return n-by-n identity matrix I
     public static double[][] identity(int n) {

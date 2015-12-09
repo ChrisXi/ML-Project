@@ -17,7 +17,8 @@ import org.apache.commons.cli.OptionBuilder;
 public class Classify {
 	static public LinkedList<Option> options = new LinkedList<Option>();
 	
-	//-algorithm nn -data ../ML_Data/test.txt
+	//-algorithm nn -data ../ML_Data/test.txt 
+	//-algorithm nn -data ../ML_Data/train.txt -test ../ML_Data/test.txt
 	
 	public static void main(String[] args) throws IOException {
 		// Parse the command line.
@@ -30,6 +31,7 @@ public class Classify {
 //		String model_file = CommandLineUtilities.getOptionValue("model_file");
 		
 		String data = CommandLineUtilities.getOptionValue("data");
+		String test = CommandLineUtilities.getOptionValue("test");
 		String algorithm = CommandLineUtilities.getOptionValue("algorithm");
 		
 		
@@ -41,19 +43,20 @@ public class Classify {
 		// Load the training data.
 		DataReader data_reader = new DataReader(data, true);
 		List<Instance> instances = data_reader.readData();
+		List<Instance> instances_test = data_reader.readData();
 		data_reader.close();
 		System.out.println("Loading data done!");
 		System.out.println("Instance number:" + instances.size());
 		System.out.println("Feature number: " + instances.get(0)._feature_vector.features.size());
 		// Train the model.
-		Predictor predictor = train(instances, algorithm);
+		Predictor predictor = train(instances, instances_test, algorithm);
 		
 //		evaluateAndSavePredictions(predictor, instances, predictions_file);
 
 	}
 	
 
-	private static Predictor train(List<Instance> instances, String algorithm) {
+	private static Predictor train(List<Instance> instances, List<Instance> instances_test, String algorithm) {
 		// TODO Train the model using "algorithm" on "data"
 		// TODO Evaluate the model
 		
@@ -61,6 +64,7 @@ public class Classify {
 		if(algorithm.equals("nn")) { //neural network
 			classifier = new NeuralNetwork();
 			classifier.train(instances);
+			classifier.test(instances_test);
 //			evaluateAfterTrain(instances,classifier);
 		} else if(algorithm.equals("cnn")) { // convolutional neural network
 			
@@ -126,7 +130,8 @@ public class Classify {
 	}
 	
 	private static void createCommandLineOptions() {
-		registerOption("data", "String", true, "The data to use.");
+		registerOption("data", "String", true, "The train data to use.");
+		registerOption("test", "String", true, "The test data to use.");
 		registerOption("algorithm", "String", true, "The name of the algorithm for training.");
 //		registerOption("mode", "String", true, "Operating mode: train or test.");
 //		registerOption("predictions_file", "String", true, "The predictions file to create.");
