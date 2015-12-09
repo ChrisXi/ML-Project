@@ -1,7 +1,9 @@
 package cs475;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import PrincetonMatrix.*;
 
@@ -61,7 +63,6 @@ public class NeuralNetwork extends Predictor{
 			}
 			
 		}
-		
 		/*label*/
 		int labelNum = this.neuronNum[this.neuronNum.length-1];
 		this.labelValue = new double[labelNum];
@@ -83,8 +84,6 @@ public class NeuralNetwork extends Predictor{
 			backForward();
 			return;
 		}
-		
-		
 	}
 
 	@Override
@@ -93,8 +92,60 @@ public class NeuralNetwork extends Predictor{
 		return null;
 	}
 	
+	public void sgd(List<Instance> trainData, int iterations, int batchSize, double learningRate ) {
+		for (int iter=0; iter<iterations; iter++){
+			long seed = System.nanoTime();
+			Collections.shuffle(trainData, new Random(seed));
+			
+			for (int k=0; k<trainData.size(); k+=batchSize){
+				List<Instance> batchTrainData = trainData.subList(k, k+batchSize);
+				updateWeights(batchTrainData, learningRate);
+			}
+		}
+	}
 	
+	public void updateWeights(List<Instance> batchTrainData, double learningRate) {
+		List<double[][]> gradients = new ArrayList<double[][]>();
+		for(int n=0; n<this.neuronNum.length-1; n++) {
+			int preNeuronNum = neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
+			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
+			double gradient[][] = new double[postNeuronNum][preNeuronNum]; 
+			gradients.add(gradient);
+		}
+		
+		for (Instance ins: batchTrainData) {
+			/*set activation value in first layer & feed forward*/
+			feedForward(ins);
+			
+			/*get label value*/
+			getLabelValue(ins);
+			
+			List<double[][]> miniGradients = backForward();
+			
+			int layerNum = miniGradients.size();
+			int iMax = miniGradients.get(0).length;
+			int jMax = miniGradients.get(0)[0].length;
+			
+			for (int b=0; b<layerNum; b++) {
+				for(int i=0; i<iMax; i++){
+					for (int j=0; j<jMax; j++){
+						gradients.get(b)[i][j] += miniGradients.get(b)[i][j];
+					}
+				}
+			}
+			
+			double temp = learningRate / batchTrainData.size();
+			for (int b=0; b<layerNum; b++) {
+				for(int i=0; i<iMax; i++){
+					for (int j=0; j<jMax; j++){
+						totalWeights.get(b)[i][j] = totalWeights.get(b)[i][j] - temp*gradients.get(b)[i][j];
+					}
+				}
+			}	
+		}	
+	}
 	
+
 	public List<double[][]> backForward() {
 		
 		List<double[][]> gradients = new ArrayList<double[][]>();
@@ -104,7 +155,6 @@ public class NeuralNetwork extends Predictor{
 			double gradient[][] = new double[postNeuronNum][preNeuronNum]; 
 			gradients.add(gradient);
 		}
-		
 		
 		//backward 
 		
@@ -157,9 +207,7 @@ public class NeuralNetwork extends Predictor{
 				result[i][j-1] = w[i][j];
 			}
 		}
-		
 		return result;
-		
 	}
 
 	public void feedForward(Instance instance) {
