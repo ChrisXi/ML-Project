@@ -23,6 +23,16 @@ public class Matrix {
                 C[i][j] = rand.nextGaussian();
         return C;
     }
+    
+    // return a m-by-n matrix with values 1
+    public static double[][] ones(int m, int n) {
+        double[][] C = new double[m][n];
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                C[i][j] = 1;
+        return C;
+    }
+
 
     // return n-by-n identity matrix I
     public static double[][] identity(int n) {
@@ -51,6 +61,8 @@ public class Matrix {
                 C[j][i] = A[i][j];
         return C;
     }
+    
+    
 
     // return C = A + B
     public static double[][] add(double[][] A, double[][] B) {
@@ -73,6 +85,15 @@ public class Matrix {
                 C[i][j] = A[i][j] - B[i][j];
         return C;
     }
+    
+    // return C = A - B
+    public static double[] subtract(double[] A, double[] B) {
+        int m = A.length;
+        double[] C = new double[m];
+        for (int i = 0; i < m; i++)
+        	C[i] = A[i] - B[i];
+        return C;
+    }
 
     // return C = A * B
     public static double[][] multiply(double[][] A, double[][] B) {
@@ -88,7 +109,7 @@ public class Matrix {
                     C[i][j] += A[i][k] * B[k][j];
         return C;
     }
-    
+
     // matrix-vector multiplication (y = A * x)
     public static double[] multiply(double[][] A, double[] x) {
         int m = A.length;
@@ -101,6 +122,25 @@ public class Matrix {
         return y;
     }
 
+    // return 
+    public static double[] multiply(double[] x, double[] y) {
+        if (x.length != y.length) throw new RuntimeException("Illegal vector dimensions.");
+        double[] result = new double[x.length];
+        for (int i = 0; i < x.length; i++)
+            result[i] = x[i] * y[i];
+        return result;
+    }
+    
+    public static double[][] multiplyTwo(double[] x, double[] y){
+    	double[][] result = new double[x.length][y.length];
+    	
+    	for (int i=0; i<x.length; i++){
+    		for (int j=0; j<y.length; j++){
+    			result[i][j] = x[i] * y[j];
+    		}
+    	}
+    	return result;
+    }
 
     // vector-matrix multiplication (y = x^T A)
     public static double[] multiply(double[] x, double[][] A) {

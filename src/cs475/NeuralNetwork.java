@@ -3,7 +3,7 @@ package cs475;
 import java.util.ArrayList;
 import java.util.List;
 
-import PrincetonMatrix.Matrix;
+import PrincetonMatrix.*;
 
 public class NeuralNetwork extends Predictor{
 
@@ -20,11 +20,11 @@ public class NeuralNetwork extends Predictor{
 	
 	public NeuralNetwork() {
 		
-		neuronNum = new int[3];
-		neuronNum[0] = 1024;
-		neuronNum[1] = 20;
-		neuronNum[2] = 10;
-		
+		neuronNum = new int[4];
+		neuronNum[0] = 5;
+		neuronNum[1] = 32;
+		neuronNum[2] = 16;
+		neuronNum[3] = 10;
 		
 		/*weight*/
 		this.totalWeights = new ArrayList<double[][]>();	
@@ -33,7 +33,10 @@ public class NeuralNetwork extends Predictor{
 			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
 //			double weights[][] = new double[preNeuronNum][postNeuronNum]; 
 			
-			double[][] weights = Matrix.random(postNeuronNum, preNeuronNum);
+			
+//			double[][] weights = Matrix.random(postNeuronNum, preNeuronNum);
+			double[][] weights = Matrix.ones(postNeuronNum, preNeuronNum);
+			
 			this.totalWeights.add(weights);
 		}
 		
@@ -80,6 +83,7 @@ public class NeuralNetwork extends Predictor{
 			/*get label value*/
 			getLabelValue(instance);
 			
+			backForward();
 			return;
 		}
 		
@@ -91,6 +95,75 @@ public class NeuralNetwork extends Predictor{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+	
+	public List<double[][]> backForward() {
+		
+		List<double[][]> gradients = new ArrayList<double[][]>();
+		for(int n=0; n<this.neuronNum.length-1; n++) {
+			int preNeuronNum = neuronNum[n]+1; //neuron Number (In previous neuron Layer) plus one bias
+			int postNeuronNum = neuronNum[n+1]; //neuron Number In next neuron Layer
+			double gradient[][] = new double[postNeuronNum][preNeuronNum]; 
+			gradients.add(gradient);
+		}
+		
+		
+		//backward 
+		
+		//1. get target error 
+		int numLastLayer = neuronNum[neuronNum.length-1];
+		double [] delta = new double [numLastLayer];
+		
+		double[] lastAct = totalActValues.get(totalActValues.size() -1);
+//		StdArrayIO.print(lastAct);
+		double[] s = new double[numLastLayer]; // s is the last vector calculated by the sigmoid prime
+		double[] lastSum = totalSumValues.get(totalSumValues.size() - 1);
+		for (int i=0; i<numLastLayer; i++){
+			s[i] = sigmoPrime(lastSum[i]);
+		}		
+		
+		// the last layer
+		delta =  Matrix.multiply(Matrix.subtract(lastAct, labelValue), s) ;
+		
+		gradients.set(neuronNum.length-2, Matrix.multiplyTwo(delta, totalActValues.get(totalActValues.size()-2)));
+		
+		// the other layers
+		for (int lr=neuronNum.length-3; lr>=0 ; lr--) {
+			double[] sum = totalSumValues.get(lr);
+			int numNodesOfLayer = neuronNum[lr+1];
+			s = new double[numNodesOfLayer];
+			for(int i=0; i< numNodesOfLayer; i++) {
+				s[i] = sigmoPrime(sum[i]);
+			}
+			
+			// get the weight without bias
+			double[][] w = getMatrixWithoutBias(totalWeights.get(lr+1));
+			
+			
+			delta = Matrix.multiply(Matrix.multiply( Matrix.transpose(w), delta) , s); 
+			gradients.set(lr, Matrix.multiplyTwo(delta, totalActValues.get(lr)));
+			
+			System.out.println("shape " + gradients.get(lr).length + " " +  gradients.get(lr)[0].length);
+//			System.out.println("shape " + totalActValues.get(lr ).length + " " +totalActValues.get(lr)[0] );
+		}
+		int b=10;
+		int a=b;
+		return gradients;
+	}
+	
+	public double[][] getMatrixWithoutBias(double[][] w) {
+		double[][] result = new double[w.length][w[0].length - 1];
+		
+		for (int i=0; i<w.length; i++){
+			for(int j=1; j<w[0].length; j++) {
+				result[i][j-1] = w[i][j];
+			}
+		}
+		
+		return result;
+		
+	}
 
 	public void feedForward(Instance instance) {
 		/*first layer of act*/
@@ -101,6 +174,7 @@ public class NeuralNetwork extends Predictor{
 			double value = instance._feature_vector.features.get(n+1);
 			this.totalActValues.get(0)[n+1] = value;  
 		}
+		
 		
 		/*feed forward*/
 		for(int l=0; l<neuronNum.length-1; l++) {
@@ -117,12 +191,10 @@ public class NeuralNetwork extends Predictor{
 				else
 					this.totalActValues.get(l+1)[i+1] = sigmo(sumValue[i]);
 			}
-			
 		}
-		int a = 20;
-		int b = a;
 	}
 	
+
 	public void getLabelValue(Instance instance) {
 		
 		String label = ((ClassificationLabel)instance._label).toString();
@@ -134,8 +206,9 @@ public class NeuralNetwork extends Predictor{
 		this.labelValue[labelIndex] = 1;
 	}
 	
+
 	public double sigmo(double z) {
-		return 1.0/(1.0+Math.exp(-z));
+		return 1.0/(1+Math.exp(-z));
 	}
 	
 	public double sigmoPrime(double z) {
