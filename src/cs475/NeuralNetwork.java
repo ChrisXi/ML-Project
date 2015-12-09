@@ -23,7 +23,7 @@ public class NeuralNetwork extends Predictor{
 	public NeuralNetwork() {
 		
 		neuronNum = new int[4];
-		neuronNum[0] = 5;
+		neuronNum[0] = 1024;
 		neuronNum[1] = 32;
 		neuronNum[2] = 16;
 		neuronNum[3] = 10;
@@ -120,26 +120,31 @@ public class NeuralNetwork extends Predictor{
 			List<double[][]> miniGradients = backForward();
 			
 			int layerNum = miniGradients.size();
-			int iMax = miniGradients.get(0).length;
-			int jMax = miniGradients.get(0)[0].length;
+			
 			
 			for (int b=0; b<layerNum; b++) {
+				int iMax = miniGradients.get(b).length;
+				int jMax = miniGradients.get(b)[0].length;
 				for(int i=0; i<iMax; i++){
 					for (int j=0; j<jMax; j++){
 						gradients.get(b)[i][j] += miniGradients.get(b)[i][j];
 					}
 				}
 			}
-			
-			double temp = learningRate / batchTrainData.size();
-			for (int b=0; b<layerNum; b++) {
-				for(int i=0; i<iMax; i++){
-					for (int j=0; j<jMax; j++){
-						totalWeights.get(b)[i][j] = totalWeights.get(b)[i][j] - temp*gradients.get(b)[i][j];
-					}
-				}
-			}	
 		}	
+		
+		int layerNum = gradients.size();
+		
+		double temp = learningRate / batchTrainData.size();
+		for (int b=0; b<layerNum; b++) {
+			int iMax = gradients.get(b).length;
+			int jMax = gradients.get(b)[0].length;
+			for(int i=0; i<iMax; i++){
+				for (int j=0; j<jMax; j++){
+					totalWeights.get(b)[i][j] = totalWeights.get(b)[i][j] - temp*gradients.get(b)[i][j];
+				}
+			}
+		}
 	}
 	
 
@@ -188,7 +193,7 @@ public class NeuralNetwork extends Predictor{
 			delta = Matrix.multiply(Matrix.multiply( Matrix.transpose(w), delta) , s); 
 			gradients.set(lr, Matrix.multiplyTwo(delta, totalActValues.get(lr)));
 			
-			System.out.println("shape " + gradients.get(lr).length + " " +  gradients.get(lr)[0].length);
+//			System.out.println("shape " + gradients.get(lr).length + " " +  gradients.get(lr)[0].length);
 //			System.out.println("shape " + totalActValues.get(lr ).length + " " +totalActValues.get(lr)[0] );
 		}
 		return gradients;
