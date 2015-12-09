@@ -276,8 +276,8 @@ public class NeuralNetwork extends Predictor{
 			
 			
 			delta = Matrix.multiply(Matrix.multiply( Matrix.transpose(w), delta) , s); 
-			gradients.set(lr, Matrix.multiplyTwo(delta, totalActValues.get(lr)));
-			
+//			gradients.set(lr, );
+			Matrix.multiplyTwo(delta, totalActValues.get(lr), gradients.get(lr));
 			
 			
 			long endtime = System.currentTimeMillis();
