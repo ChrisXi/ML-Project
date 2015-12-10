@@ -131,6 +131,17 @@ public class Matrix {
         return result;
     }
     
+
+    public static void multiplyTwo(double[] x, double[] y, double[][] result){
+//    	double[][] result = new double[x.length][y.length];
+    	
+    	for (int i=0; i<x.length; i++){
+    		for (int j=0; j<y.length; j++){
+    			result[i][j] = x[i] * y[j];
+    		}
+    	}
+//    	return result;
+    }
     
     public static double[][] multiplyTwo(double[] x, double[] y){
     	long lastTime00 = System.currentTimeMillis();
