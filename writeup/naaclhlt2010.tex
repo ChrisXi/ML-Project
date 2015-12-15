@@ -81,6 +81,19 @@ template file ({\tt naaclhlt2010.dot}) is also available at the same URL. We
 strongly recommend the use of these style files, which have been
 appropriately tailored for the NAACL HLT 2010 proceedings.
 
+\section{Background}
+
+
+Image classification has been one of the most important topics in the field of computer vision and machine learning. As a popular benchmark in this field, the CIFAR-10 databases (Krizhevsky, 2009) are frequently used as a benchmark to judge the performance of an classification algorithm. Many researchers paid neuromus efforts in this problem . Even though the best known result has achieved a 94\% of accuracy (Karpathy, 2011), it is still a quite challenging issue and many other well designed algorithms in the performance ranking list can only achieve around 70% of accuracy. 
+
+Neural network and a series of derivative algorithms (Mitchell, 1997) have been applied for image classification problems for a long time. The whole network consists of multiple layers of neurons and each of them can be treated as a single processing unit. The basic idea of neural network is inspired by the biological neural networks (Aleksander and Morton, 1990). The backpropagation algorithm, the most popular way to train a multi-layered neural network, was proposed by Bryson and Yu-Chi (1969) and further improved by Werbos (1974), Rumelhart et al (1986) . 
+
+Instead of simple multiplication between neuron outputs and weights, convolutional neural network incorporates more properties such as convolution and down-pooling (Simard et al, 2003). Due to the rapid development of computing platform like GPU, increasingly more researchers start to apply this algorithm in complex image classification. According to many other researchers? work, we realize the difficulty of this dataset and classification issue. Normally it takes more than dozens of hours of time to train a good performance model, even with high performance GPU and some other parallel computing techniques. 
+
+
+
+
+\section{Model}
 In this section, at first, since we have implemented an neural network without using any open souce, so we'll give a brief introduction to neural network by explaining the feedforword and back propagation steps in mathematics. Then we will describe how we use the basic neural network to do the classifying job on CIFAR-10 dataset.\\
 Neural networks are made up many layers, and each layer was consisted of different number of neurons which have trainable weights and biases. All the neurons are fully connected to the neurons in previous and post layers. The first layer is input layer which was viewed as a signle vector. The last layer is output layer whose output view be as predict result. Other layers between input and output layer are call hidden layer which will process and pass the 'message' from previous layer to post layer. Every neuron will receive some inputs from neurons in previous layer. Then it performs a dot product of all the inputs, following with a non-linearity optionally function as output of this neuron. \\
 {\bf How does the neural network work}\\
@@ -119,6 +132,14 @@ The input layer of the network contains neurons encoding the values of the input
 The output layer of the network contains 10 neurons which stand for 10 types of image label. We number the output neurons from 0 through 9 and select the neuron with the highest activation value as predicting result. \\
 \includegraphics[scale=0.4]{neural_network.png}
 {\bf Conclusion} \\
+
+\section{Our work}
+
+
+
+
+
+
 
 \subsection{Format of Electronic Manuscript}
 \label{sect:pdf}
