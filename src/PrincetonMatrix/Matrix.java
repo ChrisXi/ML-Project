@@ -144,11 +144,11 @@ public class Matrix {
     }
     
     public static double[][] multiplyTwo(double[] x, double[] y){
-    	long lastTime00 = System.currentTimeMillis();
+//    	long lastTime00 = System.currentTimeMillis();
     	double[][] result = new double[x.length][y.length];
-    	if(System.currentTimeMillis()-lastTime00 > 2) {
-			System.out.println("new time: "+(System.currentTimeMillis()-lastTime00)+"ms");
-		}
+//    	if(System.currentTimeMillis()-lastTime00 > 2) {
+//			System.out.println("new time: "+(System.currentTimeMillis()-lastTime00)+"ms");
+//		}
     	
     	for (int i=0; i<x.length; i++){
     		for (int j=0; j<y.length; j++){
